@@ -53,6 +53,6 @@ public class Departamento implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ID: " + id + "\nNome: " + nome;
+		return "\nID: " + id + "\nNome: " + nome;
 	}
 }

@@ -45,12 +45,12 @@ public class Vendedor implements Serializable{
 		this.nome = nome;
 	}
 
-	public String getEmil() {
+	public String getEmail() {
 		return email;
 	}
 
-	public void setEmil(String emil) {
-		this.email = emil;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public Date getDataNascimento() {

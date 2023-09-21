@@ -35,10 +35,17 @@ public class Programa {
 		}
 
 		System.out.println();
-		System.out.println("=== Teste 03: Vendedor findAll ===");
+		System.out.println("=== Teste 04: Vendedor insert ===");
 		Vendedor novoVendedor = new Vendedor(null, "Greg", "greg@gmail.com", new Date(), 4000.0, departamento);
 		vendedorDao.insert(novoVendedor);
 		System.out.println("Inserido! Novo ID: " + novoVendedor.getId());
 
+		
+		System.out.println();
+		System.out.println("=== Teste 05: Vendedor update ===");
+		vendedor = vendedorDao.findById(1);
+		vendedor.setNome("Martha Wine");
+		vendedorDao.update(vendedor);
+		System.out.println("Update completed");
 	}
 }

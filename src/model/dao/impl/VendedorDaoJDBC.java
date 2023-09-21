@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,39 @@ public class VendedorDaoJDBC implements VendedorDao {
 
 	@Override
 	public void insert(Vendedor obj) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement(
+					"INSERT INTO seller " 
+					+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+					+ "VALUES " 
+					+ "(?, ?, ?, ?, ?)",
+					Statement.RETURN_GENERATED_KEYS); //retorna o ID do novo vendedor Inserido
+
+			st.setString(1, obj.getNome());
+			st.setString(2, obj.getEmail());
+			st.setDate(3, new java.sql.Date(obj.getDataNascimento().getTime()));
+			st.setDouble(4, obj.getSalario());
+			st.setInt(5, obj.getDepartamento().getId());
+			int linhasAfetadas = st.executeUpdate();
+			
+			if(linhasAfetadas > 0) {
+				ResultSet rs = st.getGeneratedKeys();
+				if(rs.next()) {
+					int id = rs.getInt(1);
+					obj.setId(id);
+				}
+				DB.closeResultSet(rs);
+			}else {
+				throw new DbException("ERRO inesperdao! nenhuma linha afetada");
+			}
+		
+			
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}finally {
+			DB.closeStatement(st);
+		}
 
 	}
 
@@ -94,25 +127,23 @@ public class VendedorDaoJDBC implements VendedorDao {
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement(
-					"SELECT seller.*,department.Name as DepName " 
-					+ "FROM seller INNER JOIN department " 
-					+ "ON seller.DepartmentId = department.Id "
-					+ "ORDER BY Name");
-			
+					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
+							+ "ON seller.DepartmentId = department.Id " + "ORDER BY Name");
+
 			rs = st.executeQuery();
-			
+
 			List<Vendedor> lista = new ArrayList<>();
 			Map<Integer, Departamento> map = new HashMap<>();
-			
+
 			while (rs.next()) {
-				
+
 				Departamento dep = map.get(rs.getInt("DepartmentId"));
-				
-				if(dep == null) {
+
+				if (dep == null) {
 					dep = instanciandoDepartamento(rs);
 					map.put(rs.getInt("DepartmentId"), dep);
 				}
-				
+
 				Vendedor obj = instanciandoVendedor(rs, dep);
 
 				lista.add(obj);
@@ -133,26 +164,23 @@ public class VendedorDaoJDBC implements VendedorDao {
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement(
-					"SELECT seller.*,department.Name as DepName " 
-					+ "FROM seller INNER JOIN department " 
-					+ "ON seller.DepartmentId = department.Id "
-					+ "WHERE DepartmentId = ? "
-					+ "ORDER BY Name");
+					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
+							+ "ON seller.DepartmentId = department.Id " + "WHERE DepartmentId = ? " + "ORDER BY Name");
 			st.setInt(1, departamento.getId());
 			rs = st.executeQuery();
-			
+
 			List<Vendedor> lista = new ArrayList<>();
 			Map<Integer, Departamento> map = new HashMap<>();
-			
+
 			while (rs.next()) {
-				
+
 				Departamento dep = map.get(rs.getInt("DepartmentId"));
-				
-				if(dep == null) {
+
+				if (dep == null) {
 					dep = instanciandoDepartamento(rs);
 					map.put(rs.getInt("DepartmentId"), dep);
 				}
-				
+
 				Vendedor obj = instanciandoVendedor(rs, dep);
 
 				lista.add(obj);
@@ -165,7 +193,7 @@ public class VendedorDaoJDBC implements VendedorDao {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
 		}
-		
+
 	}
 
 }
